@@ -25,7 +25,8 @@ class RollbackCommand extends AbstractCommand
     {
         $this->setName('rollback')
             ->setDescription('Returns to a previous or specified migration')
-            ->addArgument('version', InputArgument::OPTIONAL, 'Specified version of the migration');
+            ->addArgument('version', InputArgument::OPTIONAL, 'Specified version of the migration')
+            ->addOption('directory', null, InputOption::VALUE_OPTIONAL, 'Name of the "DIRECTORY" to have migration', 'varchar');
     }
 
     /**
@@ -37,7 +38,7 @@ class RollbackCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        list($filenames, $migrations) = $this->getMigrations(APPPATH . 'migrations');
+        list($filenames, $migrations) = $this->getMigrations(APPPATH . 'migrations' . (($input->getOption('directory') !== NULL) ? $input->getOption('directory') : ''));
 
         $current = $this->getLatestVersion(true);
         $version = $input->getArgument('version');

@@ -22,7 +22,8 @@ class MigrateCommand extends AbstractCommand
      */
     protected function configure()
     {
-        $this->setName('migrate')->setDescription('Migrates the database');
+        $this->setName('migrate')->setDescription('Migrates the database')
+                ->addOption('directory', null, InputOption::VALUE_OPTIONAL, 'Name of the "DIRECTORY" to have migration', 'varchar');
     }
 
     /**
@@ -34,7 +35,7 @@ class MigrateCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        list($filenames, $migrations) = $this->getMigrations(APPPATH . 'migrations');
+        list($filenames, $migrations) = $this->getMigrations(APPPATH . 'migrations' . (($input->getOption('directory') !== NULL) ? $input->getOption('directory') : ''));
 
         $current = $this->getLatestVersion();
         $latest  = $migrations[count($migrations) - 1];

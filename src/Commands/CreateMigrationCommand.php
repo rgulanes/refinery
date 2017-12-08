@@ -45,7 +45,8 @@ class CreateMigrationCommand extends AbstractCommand
             ->addOption('default', null, InputOption::VALUE_OPTIONAL, 'Generates a default value in the column definition', '')
             ->addOption('null', null, InputOption::VALUE_OPTIONAL, 'Generates a "NULL" value in the column definition', false)
             ->addOption('primary', null, InputOption::VALUE_OPTIONAL, 'Generates a "PRIMARY" value in the column definition', false)
-            ->addOption('unsigned', null, InputOption::VALUE_OPTIONAL, 'Generates an "UNSIGNED" value in the column definition', false);
+            ->addOption('unsigned', null, InputOption::VALUE_OPTIONAL, 'Generates an "UNSIGNED" value in the column definition', false)
+            ->addOption('directory', null, InputOption::VALUE_OPTIONAL, 'Name of the "DIRECTORY" to have migration', 'varchar');
     }
 
     /**
@@ -57,8 +58,8 @@ class CreateMigrationCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $fileName = $this->getFileName($input->getArgument('name'), $input->getOption('sequential'));
-        $keywords = $this->getKeywords($input->getArgument('name'));
+        $fileName = $this->getFileName($input->getArgument('name'), $input->getOption('sequential'), $input->getOption('directory'));
+        $keywords = $this->getKeywords($input->getArgument('name'), $input->getOption('directory'));
 
         if ($input->getOption('from-database') && $keywords[0] != 'create') {
             $message = '--from-database is only available to create_*table*_table keyword';
@@ -71,7 +72,7 @@ class CreateMigrationCommand extends AbstractCommand
         $rendered = $this->renderer->render('Migration.twig', $data);
         $rendered = str_replace("));\n\n\t}", "));\n\t}", $rendered);
 
-        $this->filesystem->write('application/migrations/' . $fileName . '.php', $rendered);
+        $this->filesystem->write('application/migrations/'. (($input->getOption('directory') !== NULL) ? sprintf('%s/', $input->getOption('directory')) : '') . $fileName . '.php', $rendered);
 
         return $output->writeln('<info>"' . $fileName . '" has been created.</info>');
     }
@@ -106,7 +107,7 @@ class CreateMigrationCommand extends AbstractCommand
      * @param  boolean $isSequential
      * @return string
      */
-    protected function getFileName($name, $isSequential = false)
+    protected function getFileName($name, $isSequential = false, $dir = NULL)
     {
         $migrationType = $this->getMigrationType();
 
@@ -115,7 +116,7 @@ class CreateMigrationCommand extends AbstractCommand
         if ($migrationType == 'sequential' || $isSequential) {
             $number = 1;
 
-            $files = new \FilesystemIterator(APPPATH . 'migrations', \FilesystemIterator::SKIP_DOTS);
+            $files = new \FilesystemIterator(APPPATH . 'migrations' . (($dir !== NULL) ? sprintf('/%s', $dir) : ''), \FilesystemIterator::SKIP_DOTS);
 
             $number += iterator_count($files);
 
@@ -132,10 +133,10 @@ class CreateMigrationCommand extends AbstractCommand
      * @param  string $name
      * @return array
      */
-    protected function getKeywords($name)
+    protected function getKeywords($name, $dir = NULL)
     {
         $empty = [ '', '', '' ];
-        $path  = APPPATH . 'migrations';
+        $path  = APPPATH . 'migrations' . (($dir !== NULL) ? sprintf('/%s', $dir) : '');
 
         file_exists($path) || mkdir($path);
 
