@@ -8,13 +8,13 @@
         "migrations",
         "php"
     ],
-    "homepage": "https://github.com/rgulanes/refinery",
+    "homepage": "https://github.com/rougin/refinery",
     "license": "MIT",
     "authors": [
         {
-            "name": "Ronald Jay Gulanes",
-            "email": "ronaldjay.gulanes@gmail.com",
-            "homepage": "http://rgulanes.github.io",
+            "name": "Rougin Royce Gutib",
+            "email": "rougingutib@gmail.com",
+            "homepage": "http://rougin.github.io",
             "role": "Developer"
         }
     ],
